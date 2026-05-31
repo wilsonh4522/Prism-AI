@@ -3,14 +3,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
 import httpx
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 load_dotenv()
 
 POLYGON_API_KEY = os.getenv("POLYGON_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-
-genai.configure(api_key=GEMINI_API_KEY)
 
 app = FastAPI()
 app.add_middleware(
@@ -39,12 +38,13 @@ def get_ticker(ticker):
     }
 
 def analyze_with_gemini(ticker, data):
-    model = genai.GenerativeModel("gemini-3.5-flash")
+    print("GEMINI KEY:", GEMINI_API_KEY)
+    client = genai.Client(api_key=GEMINI_API_KEY)
     prompt = f"""
 You are a senior equity analyst. You have been given real market data for {ticker}. 
 Your job is to produce a structured research report. Be direct, specific, and data-driven. 
-Use the provided data as your foundation, but draw on your broader knowledge of this 
-company, its industry, and recent market context to enrich your analysis.
+Use the provided data as your foundation, and search the web for recent news, leadership changes, 
+and current events for {ticker} to enrich your analysis.
 
 MARKET DATA:
 {data}
@@ -60,21 +60,33 @@ Based on the market cap and price data provided, is this stock expensive or chea
 relative to its peers and historical range? What does current pricing imply about 
 growth expectations?
 
-3. RISK ASSESSMENT
+3. RECENT NEWS & EVENTS
+Search for the most recent significant news for {ticker}. Include leadership changes, 
+earnings updates, product launches, regulatory actions, or any major developments.
+Rate the impact of each: Positive, Negative, or Neutral.
+
+4. RISK ASSESSMENT
 Identify the top 3 risks facing this company. Consider competitive threats, 
 customer concentration, macro factors, and any recent red flags. 
 Rate each risk: Critical, High, or Strategic.
 
-4. TECHNICAL PICTURE
+5. TECHNICAL PICTURE
 Based on the price data — open, close, high, low, volume — what does the 
 recent price action suggest? Is there buying or selling pressure?
 
-5. BULL CASE vs BEAR CASE
+6. BULL CASE vs BEAR CASE
 Bull case: What has to go right for this stock to outperform?
 Bear case: What could cause this thesis to break down?
 Net view: Give your honest assessment. What would change your mind?
 
 Be concise but thorough. Use specific numbers where relevant.
 """
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            # tools=[{"google_search": {}}],
+            temperature=1.0
+        )
+    )
     return response.text
