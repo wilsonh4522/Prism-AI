@@ -1,126 +1,121 @@
-import { useState, useEffect } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from 'react'
 
 function App() {
-  const [count, setCount] = useState(0)
-  useEffect(() => {
-    fetch("http://localhost:8000/")
+  const [ticker, setTicker] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [results, setResults] = useState(null)
+
+  function handleAnalyze() {
+    setLoading(true)
+    fetch(`http://localhost:8000/analyze/${ticker}`)
       .then(response => response.json())
-      .then(data => console.log(data))
-  },[]);
+      .then(data => {
+        console.log(data)
+        setResults(data)
+        setLoading(false)
+      })
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="min-h-screen bg-gray-950 text-white">
+      
+      {/* Header */}
+      <div className="border-b border-gray-800 px-8 py-5">
+        <h1 className="text-2xl font-semibold tracking-tight">Prism<span className="text-purple-500">.</span></h1>
+      </div>
 
-      <div className="ticks"></div>
+      {/* Main content */}
+      <div className="max-w-6xl mx-auto px-8 py-10">
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+        {/* Search */}
+        <div className="flex gap-3 mb-8">
+          <input
+            type="text"
+            placeholder="Enter ticker symbol (e.g. AAPL)"
+            value={ticker}
+            onChange={(e) => setTicker(e.target.value.toUpperCase())}
+            className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+          />
+          <button
+            onClick={handleAnalyze}
+            className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-medium transition-colors"
+          >
+            Analyze
+          </button>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+        {/* Loading bar */}
+        {loading && (
+          <div className="mb-8">
+            <div className="h-1 bg-gray-800 rounded-full overflow-hidden">
+              <div className="h-full bg-purple-500 rounded-full animate-pulse w-3/4"></div>
+            </div>
+            <p className="text-gray-400 text-sm mt-2">Analyzing {ticker} across 3 AI models...</p>
+          </div>
+        )}
+
+        {/* Results */}
+        {results && (
+          <div>
+
+            {/* Stock metrics */}
+            <div className="grid grid-cols-4 gap-4 mb-8">
+              <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+                <p className="text-gray-400 text-xs mb-1">Price</p>
+                <p className="text-xl font-semibold">${results.data.price.results[0].c}</p>
+              </div>
+              <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+                <p className="text-gray-400 text-xs mb-1">Market cap</p>
+                <p className="text-xl font-semibold">${(results.data.details.results.market_cap / 1e12).toFixed(2)}T</p>
+              </div>
+              <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+                <p className="text-gray-400 text-xs mb-1">Volume</p>
+                <p className="text-xl font-semibold">{(results.data.price.results[0].v / 1e6).toFixed(1)}M</p>
+              </div>
+              <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+                <p className="text-gray-400 text-xs mb-1">Day range</p>
+                <p className="text-xl font-semibold">${results.data.price.results[0].l} – ${results.data.price.results[0].h}</p>
+              </div>
+            </div>
+
+            {/* AI cards */}
+            <p className="text-xs text-gray-500 uppercase tracking-widest mb-4">AI analyst perspectives</p>
+            <div className="grid grid-cols-3 gap-4 mb-8">
+              
+              <div className="bg-gray-900 border border-gray-800 rounded-lg p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-xs bg-emerald-900 text-emerald-400 px-2 py-1 rounded-full">Gemini 2.5</span>
+                </div>
+                <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{results.gemini}</p>
+              </div>
+
+              <div className="bg-gray-900 border border-gray-800 rounded-lg p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-xs bg-purple-900 text-purple-400 px-2 py-1 rounded-full">Claude Sonnet</span>
+                </div>
+                <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{results.claude}</p>
+              </div>
+
+              <div className="bg-gray-900 border border-gray-800 rounded-lg p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-xs bg-green-900 text-green-400 px-2 py-1 rounded-full">GPT-4o</span>
+                </div>
+                <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{results.openai}</p>
+              </div>
+
+            </div>
+
+            {/* Summary */}
+            <p className="text-xs text-gray-500 uppercase tracking-widest mb-4">Consensus summary</p>
+            <div className="bg-gray-900 border-l-4 border-purple-500 border border-gray-800 rounded-lg p-6">
+              <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{results.summary}</p>
+            </div>
+
+          </div>
+        )}
+
+      </div>
+    </div>
   )
 }
 
