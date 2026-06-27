@@ -31,9 +31,14 @@ def read_root():
 @app.get("/analyze/{ticker}")
 def get_ticker(ticker):
     response = httpx.get(f"https://api.polygon.io/v3/reference/tickers/{ticker}?apiKey={POLYGON_API_KEY}")
+    details = response.json()
+
+    if details.get("status") != "OK":
+        return {"error": f"Ticker '{ticker}' not found. Please check the symbol and try again."}
+
     data = httpx.get(f"https://api.polygon.io/v2/aggs/ticker/{ticker}/prev?apiKey={POLYGON_API_KEY}")
     stock_data = {
-        "details": response.json(),
+        "details": details,
         "price": data.json()
     }
     gemini = analyze_with_gemini(ticker, stock_data)
@@ -246,3 +251,4 @@ Be objective and data-driven. Do not pick sides on disagreements — present the
         ]
     )
     return response.content[0].text
+

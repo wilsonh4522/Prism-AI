@@ -54,8 +54,12 @@ function App() {
           </div>
         )}
 
+        {results && results.error && (
+          <p className="text-red-400 text-sm">{results.error}</p>
+        )}
+
         {/* Results */}
-        {results && (
+        {results && !results.error && (
           <div>
 
             {/* Stock metrics */}
