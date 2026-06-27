@@ -8,8 +8,7 @@ function App() {
 
   function handleAnalyze() {
     setLoading(true)
-    fetch(`http://localhost:8000/analyze/${ticker}`)
-      .then(response => response.json())
+    fetch(`https://prism-backend-kvk7.onrender.com/analyze/${ticker}`)      .then(response => response.json())
       .then(data => {
         console.log(data)
         setResults(data)
