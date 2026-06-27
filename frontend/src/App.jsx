@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import ReactMarkdown from 'react-markdown'
 
 function App() {
   const [ticker, setTicker] = useState("")
@@ -84,23 +85,23 @@ function App() {
               
               <div className="bg-gray-900 border border-gray-800 rounded-lg p-5">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xs bg-emerald-900 text-emerald-400 px-2 py-1 rounded-full">Gemini 2.5</span>
+                  <span className="text-xs bg-emerald-900 text-emerald-400 px-2 py-1 rounded-full">Gemini 3.1 Pro</span>
                 </div>
-                <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{results.gemini}</p>
+                <ReactMarkdown>{results.gemini}</ReactMarkdown>
               </div>
 
               <div className="bg-gray-900 border border-gray-800 rounded-lg p-5">
                 <div className="flex items-center gap-2 mb-4">
                   <span className="text-xs bg-purple-900 text-purple-400 px-2 py-1 rounded-full">Claude Sonnet</span>
                 </div>
-                <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{results.claude}</p>
+                <ReactMarkdown>{results.claude}</ReactMarkdown>
               </div>
 
               <div className="bg-gray-900 border border-gray-800 rounded-lg p-5">
                 <div className="flex items-center gap-2 mb-4">
                   <span className="text-xs bg-green-900 text-green-400 px-2 py-1 rounded-full">GPT-4o</span>
                 </div>
-                <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{results.openai}</p>
+                <ReactMarkdown>{results.openai}</ReactMarkdown>
               </div>
 
             </div>
@@ -108,7 +109,7 @@ function App() {
             {/* Summary */}
             <p className="text-xs text-gray-500 uppercase tracking-widest mb-4">Consensus summary</p>
             <div className="bg-gray-900 border-l-4 border-purple-500 border border-gray-800 rounded-lg p-6">
-              <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{results.summary}</p>
+              <ReactMarkdown>{results.summary}</ReactMarkdown>
             </div>
 
           </div>
