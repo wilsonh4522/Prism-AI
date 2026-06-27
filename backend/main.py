@@ -51,10 +51,10 @@ def get_ticker(ticker):
 def analyze_with_gemini(ticker, data):
     client = genai.Client(api_key=GEMINI_API_KEY)
     prompt = f"""
-You are a senior equity analyst producing a structured equity research report for {ticker}.
+You are a senior equity analyst producing a structured equity research report for {ticker}. 
 
 IMPORTANT DATA INSTRUCTIONS:
-The market data below is pulled directly from Polygon.io and reflects the current, real-time price and fundamentals. This data is ground truth. You MUST use these exact numbers for price, market cap, volume, and share count in your analysis. Do NOT substitute, override, or adjust these figures with data from your training. If your training data shows a different price or market cap, ignore it — the Polygon data is correct.
+The market data below is pulled directly from Polygon.io and reflects the current, real-time price and fundamentals. This data is ground truth. You MUST use these exact numbers for price, market cap, volume, and share count in your analysis. Do NOT substitute, override, or adjust these figures with data from your training. If your training data shows a different price or market cap, ignore it — the Polygon data is correct. Keep your total response under 1500 words. Always complete every section fully. Never cut off mid-sentence or mid-section.
 
 MARKET DATA (Source: Polygon.io — Current & Accurate):
 {data}
@@ -89,11 +89,11 @@ Net view: Your honest assessment. What would change your mind?
 Be concise but thorough. Always cite the exact Polygon numbers when referencing price or market cap.
 """
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-3.1-pro-preview",
         contents=prompt,
         config=types.GenerateContentConfig(
             # tools=[{"google_search": {}}],
-            temperature=1.0
+            temperature=0.7
         )
     )
     return response.text
@@ -104,7 +104,7 @@ def analyze_with_anthropic(ticker, data):
 You are a senior equity analyst producing a structured equity research report for {ticker}.
 
 IMPORTANT DATA INSTRUCTIONS:
-The market data below is pulled directly from Polygon.io and reflects the current, real-time price and fundamentals. This data is ground truth. You MUST use these exact numbers for price, market cap, volume, and share count in your analysis. Do NOT substitute, override, or adjust these figures with data from your training. If your training data shows a different price or market cap, ignore it — the Polygon data is correct.
+The market data below is pulled directly from Polygon.io and reflects the current, real-time price and fundamentals. This data is ground truth. You MUST use these exact numbers for price, market cap, volume, and share count in your analysis. Do NOT substitute, override, or adjust these figures with data from your training. If your training data shows a different price or market cap, ignore it — the Polygon data is correct. Keep your total response under 1500 words. Always complete every section fully. Never cut off mid-sentence or mid-section.
 
 MARKET DATA (Source: Polygon.io — Current & Accurate):
 {data}
@@ -153,7 +153,7 @@ def analyze_with_openai(ticker, data):
 You are a senior equity analyst producing a structured equity research report for {ticker}.
 
 IMPORTANT DATA INSTRUCTIONS:
-The market data below is pulled directly from Polygon.io and reflects the current, real-time price and fundamentals. This data is ground truth. You MUST use these exact numbers for price, market cap, volume, and share count in your analysis. Do NOT substitute, override, or adjust these figures with data from your training. If your training data shows a different price or market cap, ignore it — the Polygon data is correct.
+The market data below is pulled directly from Polygon.io and reflects the current, real-time price and fundamentals. This data is ground truth. You MUST use these exact numbers for price, market cap, volume, and share count in your analysis. Do NOT substitute, override, or adjust these figures with data from your training. If your training data shows a different price or market cap, ignore it — the Polygon data is correct. Keep your total response under 1500 words. Always complete every section fully. Never cut off mid-sentence or mid-section.
 
 MARKET DATA (Source: Polygon.io — Current & Accurate):
 {data}
@@ -200,7 +200,7 @@ def generate_summary(ticker, gemini_analysis, claude_analysis, openai_analysis):
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     prompt = f"""You are a senior research director synthesizing independent equity analyses from three different AI analysts (Gemini, Claude, and GPT-4o) for {ticker}.
 
-You are a neutral third party — you are NOT Gemini, Claude, or GPT-4o. You have no affiliation with any of the three analysts and no reason to favor any one of them, including yourself. Your only job is to represent the data and evidence fairly.
+You are a neutral third party — you are NOT Gemini, Claude, or GPT-4o. You have no affiliation with any of the three analysts and no reason to favor any one of them, including yourself. Your only job is to represent the data and evidence fairly. Keep your total response under 6000 words. Always complete every section fully before moving to the next. Never cut off mid-sentence or mid-section. If you are running low on space, shorten each section rather than leaving the last sections incomplete.
 
 Your job is to produce a single, objective consensus report. Do not favor any single analyst's view. Present all perspectives fairly and let the data speak.
 
@@ -240,7 +240,7 @@ Be objective and data-driven. Do not pick sides on disagreements — present the
 
     response = client.messages.create(
         model = "claude-sonnet-4-6",
-        max_tokens=4096,
+        max_tokens=8192,
         messages = [
             {"role": "user", "content" : prompt}
         ]
